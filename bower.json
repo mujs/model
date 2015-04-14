@@ -1,0 +1,23 @@
+{
+  "name": "model",
+  "description": "Evented models",
+  "version": "0.1.0",
+  "main": "model.js",
+  "dependencies": {
+    "define": "*",
+    "mu.is": "*",
+    "mu.fn": "*",
+    "mu.list": "*",
+    "mu.api": "*"
+  },
+  "keywords": [
+    "model",
+    "events",
+    "emitter",
+    "dirty checking",
+    "watchers",
+    "on",
+    "watch"
+  ],
+  "license": "MIT"
+}
