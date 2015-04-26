@@ -8,16 +8,11 @@
     "mu.is": "*",
     "mu.fn": "*",
     "mu.list": "*",
-    "mu.api": "*"
+    "async": "*"
   },
   "keywords": [
     "model",
-    "events",
-    "emitter",
-    "dirty checking",
-    "watchers",
-    "on",
-    "watch"
+    "events"
   ],
   "license": "MIT"
 }
