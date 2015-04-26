@@ -8,7 +8,7 @@
     "mu.is": "*",
     "mu.fn": "*",
     "mu.list": "*",
-    "async": "*"
+    "mu.async": "*"
   },
   "keywords": [
     "model",
