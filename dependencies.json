@@ -1,7 +1,7 @@
 {
-  "define": "master",
-  "mu.is": "master",
-  "mu.fn": "master",
-  "mu.list": "mater",
-  "mu.async": "master"
+  "definejs/define": "master",
+  "mujs/mu.is": "master",
+  "mujs/mu.fn": "master",
+  "mujs/mu.list": "mater",
+  "mujs/mu.async": "master"
 }
