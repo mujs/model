@@ -26,6 +26,9 @@ define('model.object', function (require) {
       });
     };
 
+    model.on = channel.on;
+    model.emit = channel.emit;
+
     each(config, function (item, index) {
       model[index] = (isFunction(item)
         ? partial(item, model)
@@ -33,8 +36,7 @@ define('model.object', function (require) {
       );
     });
 
-    model.on = channel.on;
-    model.emit = channel.emit;
+    return model;
   };
 
   return object;
@@ -71,9 +73,10 @@ define('model.array', function (require) {
       });
     };
 
-    each(config, function (item, index) {
-      model[index] = partial(item, model);
-    });
+    model.insert = function (item) {
+      data.push(item);
+      channel.emit('insert', model.item(item));
+    };
 
     model.change = function (item, newVal) {
       var index = indexOf(data, item);
@@ -99,13 +102,12 @@ define('model.array', function (require) {
       };
     };
 
-    model.insert = function (item) {
-      data.push(item);
-      channel.emit('insert', model.item(item));
-    };
-
     model.on = channel.on;
     model.emit = channel.emit;
+
+    each(config, function (item, index) {
+      model[index] = partial(item, model);
+    });
 
     return model;
   };
