@@ -117,7 +117,7 @@ define('model', function (require) {
   'use strict';
 
   return {
-    model : require('model.object'),
-    array : require('model.array')
+    object : require('model.object'),
+    array  : require('model.array')
   };
 });
