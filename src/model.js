@@ -50,7 +50,6 @@ define('model.array', function (require) {
       partial    = require('mu.fn.partial'),
       each       = require('mu.list.each'),
       map        = require('mu.list.map'),
-      reduce     = require('mu.list.reduce'),
       remove     = require('mu.list.remove'),
       indexOf    = require('mu.list.indexOf'),
       events     = require('mu.async.events');
