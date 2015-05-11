@@ -22,7 +22,7 @@ define('model.object', function (require) {
 
     var model = function () {
       return map(config, function (item) {
-        if (isFunction(item)) { return item(model); };
+        if (isFunction(item)) { return item(); };
         return item;
       });
     };
@@ -32,7 +32,7 @@ define('model.object', function (require) {
 
     each(config, function (item, index) {
       model[index] = (isFunction(item)
-        ? partial(item, model)
+        ? item
         : partial(getterSetter, channel, config, index)
       );
     });
@@ -69,7 +69,7 @@ define('model.array', function (require) {
 
     var model = function () {
       return map(data, function (item) {
-        if (isFunction(item)) { return item(model); };
+        if (isFunction(item)) { return item(); };
         return item;
       });
     };
@@ -105,10 +105,7 @@ define('model.array', function (require) {
 
     model.on = channel.on;
     model.emit = channel.emit;
-
-    each(config, function (item, index) {
-      model[index] = partial(item, model);
-    });
+    each(config, mixin(model));
 
     return model;
   };
