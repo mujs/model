@@ -50,6 +50,7 @@ define('model.array', function (require) {
       partial    = require('mu.fn.partial'),
       each       = require('mu.list.each'),
       map        = require('mu.list.map'),
+      reduce     = require('mu.list.reduce'),
       remove     = require('mu.list.remove'),
       indexOf    = require('mu.list.indexOf'),
       events     = require('mu.async.events');
@@ -58,10 +59,18 @@ define('model.array', function (require) {
     return arg;
   };
 
-  var mixin = function (target) {
-    return function (item, index) {
-      target[index] = item;
-    };
+  var mixin = function (a, b) {
+    each(b, function (item, index) {
+      a[index] = item;
+    });
+  };
+
+  var mix = function (/* objs... */) {
+    var objs = arguments;
+    return reduce(objs, {}, function (acc, item) {
+      mixin(acc, item);
+      return acc;
+    });
   };
 
   var array = function (config) {
@@ -75,39 +84,35 @@ define('model.array', function (require) {
       });
     };
 
-    model.insert = function (item) {
-      data.push(item);
-      channel.emit('insert', model.item(item));
-    };
+    mixin(model, {
+      insert: function (item) {
+        data.push(item);
+        channel.emit('insert', model.item(item));
+      },
+      change: function (item, newVal) {
+        var index = indexOf(data, item);
+        data[index] = newVal;
+        channel.emit('change', newVal, item);
+      },
+      update: function (item, newVal) {
+        model.change(item, mix(item, newVal));
+      },
+      remove: function (item) {
+        remove(data, item);
+        channel.emit('remove', item);
+      },
+      item: function (item) {
+        return {
+          value: partial(identity, item),
+          change: partial(model.change, item),
+          update: partial(model.update, item),
+          remove: partial(model.remove, item)
+        };
+      }
+    });
 
-    model.change = function (item, newVal) {
-      var index = indexOf(data, item);
-      data[index] = newVal;
-      channel.emit('change', newVal, item);
-    };
-
-    model.update = function (item, newVal) {
-      model.change(item, each(newVal, mixin(item)));
-    };
-
-    model.remove = function (item) {
-      remove(data, item);
-      channel.emit('remove', item);
-    };
-
-    model.item = function (item) {
-      return {
-        value: partial(identity, item),
-        change: partial(model.change, item),
-        update: partial(model.update, item),
-        remove: partial(model.remove, item)
-      };
-    };
-
-    model.on = channel.on;
-    model.emit = channel.emit;
-    each(config, mixin(model));
-
+    mixin(model, channel);
+    mixin(model, config);
     return model;
   };
 
