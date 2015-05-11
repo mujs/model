@@ -4,7 +4,8 @@ define('model.object', function (require) {
   var isDefined  = require('mu.is.defined'),
       isFunction = require('mu.is.function'),
       partial    = require('mu.fn.partial'),
-      map        = require('mu.list.reduce'),
+      each       = require('mu.list.each'),
+      map        = require('mu.list.map'),
       events     = require('mu.async.events');
 
   var getterSetter = function (channel, model, attr, newVal) {
@@ -47,7 +48,7 @@ define('model.array', function (require) {
 
   var partial = require('mu.fn.partial'),
       each    = require('mu.list.each'),
-      map     = require('mu.list.reduce'),
+      map     = require('mu.list.map'),
       remove  = require('mu.list.remove'),
       indexOf = require('mu.list.indexOf'),
       events  = require('mu.async.events');
