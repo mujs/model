@@ -46,12 +46,13 @@ define('model.object', function (require) {
 define('model.array', function (require) {
   'use strict';
 
-  var partial = require('mu.fn.partial'),
-      each    = require('mu.list.each'),
-      map     = require('mu.list.map'),
-      remove  = require('mu.list.remove'),
-      indexOf = require('mu.list.indexOf'),
-      events  = require('mu.async.events');
+  var isFunction = require('mu.is.function'),
+      partial    = require('mu.fn.partial'),
+      each       = require('mu.list.each'),
+      map        = require('mu.list.map'),
+      remove     = require('mu.list.remove'),
+      indexOf    = require('mu.list.indexOf'),
+      events     = require('mu.async.events');
 
   var identity = function (arg) {
     return arg;
