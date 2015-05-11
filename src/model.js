@@ -65,14 +65,6 @@ define('model.array', function (require) {
     });
   };
 
-  var mix = function (/* objs... */) {
-    var objs = arguments;
-    return reduce(objs, {}, function (acc, item) {
-      mixin(acc, item);
-      return acc;
-    });
-  };
-
   var array = function (config) {
     var data = [],
         channel = events();
@@ -95,7 +87,8 @@ define('model.array', function (require) {
         channel.emit('change', newVal, item);
       },
       update: function (item, newVal) {
-        model.change(item, mix(item, newVal));
+        mixin(item, newVal);
+        model.change(item, item);
       },
       remove: function (item) {
         remove(data, item);
