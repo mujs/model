@@ -1,0 +1,1 @@
+--require dependencies/define.nodeify/src/nodeify.js

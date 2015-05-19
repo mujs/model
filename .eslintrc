@@ -1,0 +1,8 @@
+{
+  "globals": {
+    "define": true
+  },
+  "rules": {
+    "quotes": "single"
+  }
+}

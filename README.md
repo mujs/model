@@ -3,6 +3,12 @@ model
 
 Evented models
 
+Test
+----
+
+    npm lint
+    npm test
+
 API
 ---
 
