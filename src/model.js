@@ -3,6 +3,7 @@ define('model.object', function (require) {
 
   var isDefined  = require('mu.is.defined'),
       isFunction = require('mu.is.function'),
+      isObject   = require('mu.is.object'),
       partial    = require('mu.fn.partial'),
       each       = require('mu.list.each'),
       map        = require('mu.list.map'),
@@ -20,18 +21,20 @@ define('model.object', function (require) {
   var object = function (config) {
     var channel = events();
 
-    var model = function () {
-      return map(config, function (item) {
-        if (isFunction(item)) { return item(); };
-        return item;
-      });
+    var model = {
+      snapshot: function () {
+        return map(config, function (item) {
+          if (isFunction(item)) { return item(); };
+          if (isFunction(item.snapshot)) { return item.snapshot(); }
+          return item;
+        });
+      },
+      on: channel.on,
+      emit: channel.emit
     };
 
-    model.on = channel.on;
-    model.emit = channel.emit;
-
     each(config, function (item, index) {
-      model[index] = (isFunction(item)
+      model[index] = (isFunction(item) || isObject(item)
         ? item
         : partial(getterSetter, channel, config, index)
       );
@@ -68,14 +71,14 @@ define('model.array', function (require) {
     var data = [],
         channel = events();
 
-    var model = function () {
-      return map(data, function (item) {
-        if (isFunction(item)) { return item(); };
-        return item;
-      });
-    };
-
-    mixin(model, {
+    var model = {
+      snapshot: function () {
+        return map(data, function (item) {
+          if (isFunction(item)) { return item(); };
+          if (isFunction(item.snapshot)) { return item.snapshot(); }
+          return item;
+        });
+      },
       insert: function (item) {
         data.push(item);
         channel.emit('insert', model.item(item));
@@ -101,7 +104,7 @@ define('model.array', function (require) {
           remove: partial(model.remove, item)
         };
       }
-    });
+    };
 
     mixin(model, channel);
     mixin(model, config);
