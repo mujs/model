@@ -60,8 +60,11 @@ define('model', function (require) {
 
       traverse(tree, function (item, index) {
         var node = path(model, index);
-        if (isScalar(item) && isFunction(node)) { return node(item); }
-        if (isArray(item) && isFunction(node.reset)) { node.reset(item); }
+
+        if (isScalar(item) && isFunction(node)) { node(item); }
+        else if (isArray(item) && isFunction(node.reset)) {
+          node.reset(item);
+        }
       });
     };
 
