@@ -39,11 +39,11 @@ define('model', function (require) {
         channel = events();
 
     var model = map(root, function (item, index) {
-      if (isFunction(item)) { return partial(item, model); }
-
       if (isScalar(item)) {
         return partial(getSet, channel.emit, root, scheme, index);
       }
+
+      if (isFunction(item)) { return function () { return item(model); }; }
 
       var node = null;
       if (isObject(item)) { node = modelFactory(item); }
