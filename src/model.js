@@ -26,9 +26,9 @@ define('model', function (require) {
       else if (isString(type)) { value = String(value); }
       else if (isBoolean(type)) { value = Boolean(value); }
 
-      if (value !== model[attr]) {
-        emit(attr, value, model[attr]);
-        model[attr] = value;
+      if (value !== root[attr]) {
+        emit(attr, value, root[attr]);
+        root[attr] = value;
       }
     }
 
