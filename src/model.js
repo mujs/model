@@ -39,15 +39,18 @@ define('model', function (require) {
         channel = events();
 
     var model = map(root, function (item, index) {
-      if (isScalar(item)) { return partial(getSet, channel.emit, root, scheme, index); }
       if (isFunction(item)) { return partial(item, model); }
 
-      var model = null;
-      if (isObject(item)) { model = modelFactory(item); }
-      if (isArray(item)) { model = modelList(item[0]); }
+      if (isScalar(item)) {
+        return partial(getSet, channel.emit, root, scheme, index);
+      }
 
-      model.on('event', partial(channel.emit, index));
-      return model;
+      var node = null;
+      if (isObject(item)) { node = modelFactory(item); }
+      if (isArray(item)) { node = modelList(item[0]); }
+
+      node.on('event', partial(channel.emit, index));
+      return node;
     });
 
     var update = function (tree) {
