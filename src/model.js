@@ -1,124 +1,108 @@
-define('model.object', function (require) {
+define('model', function (require) {
   'use strict';
 
   var isDefined  = require('mu.is.defined'),
-      isFunction = require('mu.is.function'),
+      isBoolean  = require('mu.is.boolean'),
       isObject   = require('mu.is.object'),
+      isArray    = require('mu.is.array'),
+      isFunction = require('mu.is.function'),
+      isScalar   = require('mu.is.scalar'),
       partial    = require('mu.fn.partial'),
+      merge      = require('mu.object.merge'),
       each       = require('mu.list.each'),
       map        = require('mu.list.map'),
+      remove     = require('mu.list.remove'),
+      traverse   = require('mu.tree.each'),
+      path       = require('mu.tree.path'),
+      copy       = require('mu.tree.copy'),
       events     = require('mu.async.events');
 
-  var getterSetter = function (channel, model, attr, newVal) {
-    if (isDefined(newVal)) {
-      channel.emit(attr, newVal, model[attr]);
-      model[attr] = newVal;
+  var getSet = function (emit, root, scheme, attr, value) {
+    var type = scheme[attr];
+
+    if (isScalar(value)) {
+      if (isNumber(type) && isNumber(value)) { value = Number(value); }
+      else if (isString(type)) { value = String(value); }
+      else if (isBoolean(type)) { value = Boolean(value); }
+
+      if (value !== model[attr]) {
+        emit(attr, value, model[attr]);
+        model[attr] = value;
+      }
     }
 
     return model[attr];
   };
 
-  var object = function (config) {
-    var channel = events();
-
-    var model = {
-      snapshot: function () {
-        return map(config, function (item) {
-          if (isFunction(item)) { return item(); };
-          if (isFunction(item.snapshot)) { return item.snapshot(); }
-          return item;
-        });
-      },
-      on: channel.on,
-      emit: channel.emit
-    };
-
-    each(config, function (item, index) {
-      model[index] = (isFunction(item) || isObject(item)
-        ? item
-        : partial(getterSetter, channel, config, index)
-      );
-    });
-
-    return model;
-  };
-
-  return object;
-});
-
-define('model.array', function (require) {
-  'use strict';
-
-  var isFunction = require('mu.is.function'),
-      partial    = require('mu.fn.partial'),
-      each       = require('mu.list.each'),
-      map        = require('mu.list.map'),
-      remove     = require('mu.list.remove'),
-      indexOf    = require('mu.list.indexOf'),
-      events     = require('mu.async.events');
-
-  var identity = function (arg) {
-    return arg;
-  };
-
-  var mixin = function (a, b) {
-    each(b, function (item, index) {
-      a[index] = item;
-    });
-  };
-
-  var array = function (config) {
-    var data = [],
+  var modelFactory = function (scheme) {
+    var root = copy(scheme),
         channel = events();
 
-    var model = {
-      snapshot: function () {
-        return map(data, function (item) {
-          if (isFunction(item)) { return item(); };
-          if (isFunction(item.snapshot)) { return item.snapshot(); }
-          return item;
+    var model = map(root, function (item, index) {
+      if (isScalar(item) { return partial(getSet, channel.emit, root, scheme, index); }
+      if (isFunction(item) { return partial(item, root); }
+
+      var model = null;
+      if (isObject(item)) { model = modelFactory(item); }
+      if (isArray(item)) { model = modelList(item[0]); }
+
+      model.on('event', partial(channel.emit, index));
+      return model;
+    });
+
+    return merge(model, channel, {
+      update: function (tree) {
+        if (isFunction(tree.snapshot)) { tree = tree.snapshot(); }
+
+        traverse(tree, function (item, index) {
+          var node = path(model, index);
+          if (isScalar(item) && isFunction(node)) { return node(item); }
+          if (isArray(item) && isFunction(node.reset)) { node.reset(item); }
         });
       },
+      snapshot: function () {
+        return map(root, function (node) {
+          if (isFunction(node)) { return node(); }
+          if (isFunction(node.snapshot)) { return node.snapshot(); }
+          return node;
+        });
+      },
+      scheme: function () {
+        return scheme;
+      }
+    });
+  };
+
+  var modelList = function (scheme) {
+    var models = [],
+        channel = events();
+
+    var list = {
       insert: function (item) {
-        data.push(item);
-        channel.emit('insert', model.item(item));
+        var model = modelFactory(scheme);
+        model.update(item);
+        models.push(model);
+        channel.emit('insert', model, partial(list.remove, model));
+        model.on('event', partial(channel.emit, 'change', model));
       },
-      change: function (item, newVal) {
-        var index = indexOf(data, item);
-        data[index] = newVal;
-        channel.emit('change', newVal, item);
+      remove: function (model) {
+        remove(models, model);
+        channel.emit('remove', model);
       },
-      update: function (item, newVal) {
-        mixin(item, newVal);
-        model.change(item, item);
+      reset: function (newModels) {
+        if (!isArray(newModels)) { return; }
+        each(models, list.remove);
+        each(newModels, list.insert);
       },
-      remove: function (item) {
-        remove(data, item);
-        channel.emit('remove', item);
-      },
-      item: function (item) {
-        return {
-          value: partial(identity, item),
-          change: partial(model.change, item),
-          update: partial(model.update, item),
-          remove: partial(model.remove, item)
-        };
+      snapshot: function () {
+        return map(models, function (model) {
+          return model.snapshot();
+        });
       }
     };
 
-    mixin(model, channel);
-    mixin(model, config);
-    return model;
+    return merge(list, channel);
   };
 
-  return array;
-});
-
-define('model', function (require) {
-  'use strict';
-
-  return {
-    object : require('model.object'),
-    array  : require('model.array')
-  };
+  return modelFactory;
 });
