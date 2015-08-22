@@ -55,8 +55,8 @@ define('model', function (require) {
     });
 
     var update = function (tree) {
-      if (!tree) { return; }
-      if (isFunction(tree.snapshot)) { tree = tree.snapshot(); }
+      if (!tree) { tree = scheme; }
+      else if (isFunction(tree.snapshot)) { tree = tree.snapshot(); }
 
       traverse(tree, function (item, index) {
         var node = path(model, index);
