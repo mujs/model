@@ -1,8 +1,8 @@
 define('model', function (require) {
   'use strict';
 
-  var isDefined  = require('mu.is.defined'),
-      isBoolean  = require('mu.is.boolean'),
+  var isBoolean  = require('mu.is.boolean'),
+      isNumber   = require('mu.is.number'),
       isObject   = require('mu.is.object'),
       isArray    = require('mu.is.array'),
       isFunction = require('mu.is.function'),
