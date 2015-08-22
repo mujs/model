@@ -73,14 +73,10 @@ define('model', function (require) {
       });
     };
 
-    var scheme = function () {
-      return scheme;
-    };
-
     model = merge(model, channel, {
       update: update,
       snapshot: snapshot,
-      scheme: scheme
+      scheme: function () { return scheme; }
     });
 
     return model;
