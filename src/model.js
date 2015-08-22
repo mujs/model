@@ -3,6 +3,7 @@ define('model', function (require) {
 
   var isBoolean  = require('mu.is.boolean'),
       isNumber   = require('mu.is.number'),
+      isString   = require('mu.is.string'),
       isObject   = require('mu.is.object'),
       isArray    = require('mu.is.array'),
       isFunction = require('mu.is.function'),
