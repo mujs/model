@@ -40,7 +40,7 @@ define('model', function (require) {
 
     var model = map(root, function (item, index) {
       if (isScalar(item)) { return partial(getSet, channel.emit, root, scheme, index); }
-      if (isFunction(item)) { return partial(item, root); }
+      if (isFunction(item)) { return partial(item, model); }
 
       var model = null;
       if (isObject(item)) { model = modelFactory(item); }
@@ -73,11 +73,13 @@ define('model', function (require) {
       return scheme;
     };
 
-    return merge(model, channel, {
+    model = merge(model, channel, {
       update: update,
       snapshot: snapshot,
       scheme: scheme
     });
+
+    return model;
   };
 
   var modelList = function (scheme) {
