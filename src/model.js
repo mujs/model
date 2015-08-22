@@ -32,7 +32,7 @@ define('model', function (require) {
       }
     }
 
-    return model[attr];
+    return root[attr];
   };
 
   var modelFactory = function (scheme) {
