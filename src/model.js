@@ -50,26 +50,32 @@ define('model', function (require) {
       return model;
     });
 
-    return merge(model, channel, {
-      update: function (tree) {
-        if (isFunction(tree.snapshot)) { tree = tree.snapshot(); }
+    var update = function (tree) {
+      if (isFunction(tree.snapshot)) { tree = tree.snapshot(); }
 
-        traverse(tree, function (item, index) {
-          var node = path(model, index);
-          if (isScalar(item) && isFunction(node)) { return node(item); }
-          if (isArray(item) && isFunction(node.reset)) { node.reset(item); }
-        });
-      },
-      snapshot: function () {
-        return map(root, function (node) {
-          if (isFunction(node)) { return node(); }
-          if (isFunction(node.snapshot)) { return node.snapshot(); }
-          return node;
-        });
-      },
-      scheme: function () {
-        return scheme;
-      }
+      traverse(tree, function (item, index) {
+        var node = path(model, index);
+        if (isScalar(item) && isFunction(node)) { return node(item); }
+        if (isArray(item) && isFunction(node.reset)) { node.reset(item); }
+      });
+    };
+
+    var snapshot = function () {
+      return map(root, function (node) {
+        if (isFunction(node)) { return node(); }
+        if (isFunction(node.snapshot)) { return node.snapshot(); }
+        return node;
+      });
+    };
+
+    var scheme = function () {
+      return scheme;
+    };
+
+    return merge(model, channel, {
+      update: update,
+      snapshot: snapshot,
+      scheme: scheme
     });
   };
 
