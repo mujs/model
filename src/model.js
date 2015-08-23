@@ -73,7 +73,7 @@ define('model', function (require) {
     };
 
     var snapshot = function () {
-      return map(root, function (node) {
+      return map(model, function (node) {
         if (isFunction(node)) { return node(model); }
         if (isFunction(node.snapshot)) { return node.snapshot(); }
         return node;
