@@ -58,7 +58,7 @@ define('model', function (require) {
       if (!tree) { tree = scheme; }
       else if (isFunction(tree.snapshot)) { tree = tree.snapshot(); }
 
-      traverse(tree, function (item, index) {
+      traverse(merge(scheme, tree), function (item, index) {
         var node = path(model, index);
 
         if (isScalar(item) && isFunction(node)) { node(item); }
