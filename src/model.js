@@ -44,7 +44,11 @@ define('model', function (require) {
         return partial(getSet, channel.emit, root, scheme, index);
       }
 
-      if (isFunction(item)) { return function () { return item(model); }; }
+      if (isFunction(item)) {
+        return function () {
+          return item(model);
+        };
+      }
 
       var node = null;
       if (isObject(item)) { node = modelFactory(item); }
