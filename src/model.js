@@ -18,11 +18,15 @@ define('model', function (require) {
       copy       = require('mu.tree.copy'),
       events     = require('mu.async.events');
 
+  var seemsNumber = function (value) {
+    return !isNaN(value);
+  };
+
   var getSet = function (emit, root, scheme, attr, value) {
     var type = scheme[attr];
 
     if (isScalar(value)) {
-      if (isNumber(type) && isNumber(value)) { value = Number(value); }
+      if (isNumber(type) && seemsNumber(value)) { value = Number(value); }
       else if (isString(type)) { value = String(value); }
       else if (isBoolean(type)) { value = Boolean(value); }
 
