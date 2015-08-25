@@ -104,6 +104,7 @@ define('model', function (require) {
         models.push(model);
         channel.emit('insert', model, partial(list.remove, model));
         model.on('event', partial(channel.emit, 'change', model));
+        return model;
       },
       remove: function (model) {
         remove(models, model);
