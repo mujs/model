@@ -83,8 +83,7 @@ define('model', function (require) {
 
     modelInstance = merge(modelInstance, channel, {
       update: update,
-      snapshot: snapshot,
-      scheme: function () { return scheme; }
+      snapshot: snapshot
     });
 
     return modelInstance;
