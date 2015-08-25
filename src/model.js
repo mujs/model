@@ -43,23 +43,20 @@ define('model', function (require) {
     var root = copy(scheme),
         channel = events();
 
-    var model = map(root, function (item, index) {
+    var modelInstance = map(root, function (item, index) {
       if (isScalar(item)) {
         return partial(getSet, channel.emit, root, scheme, index);
       }
 
       if (isFunction(item)) {
         return function () {
-          return item(model);
+          return item(modelInstance);
         };
       }
 
-      var node = null;
-      if (isObject(item)) { node = modelFactory(item); }
-      if (isArray(item)) { node = modelList(item[0]); }
-
-      node.on('event', partial(channel.emit, index));
-      return node;
+      var childModel = model(item);
+      childModel.on('event', partial(channel.emit, index));
+      return childModel;
     });
 
     var update = function (tree) {
@@ -67,7 +64,7 @@ define('model', function (require) {
       else if (isFunction(tree.snapshot)) { tree = tree.snapshot(); }
 
       traverse(merge(scheme, tree), function (item, index) {
-        var node = path(model, index);
+        var node = path(modelInstance, index);
 
         if (isScalar(item) && isFunction(node)) { node(item); }
         else if (isArray(item) && isFunction(node.reset)) {
@@ -78,19 +75,19 @@ define('model', function (require) {
 
     var snapshot = function () {
       return map(root, function (node, index) {
-        if (isFunction(node)) { return node(model); }
+        if (isFunction(node)) { return node(modelInstance); }
         if (isScalar(node)) { return node; }
-        return model[index].snapshot();
+        return modelInstance[index].snapshot();
       });
     };
 
-    model = merge(model, channel, {
+    modelInstance = merge(modelInstance, channel, {
       update: update,
       snapshot: snapshot,
       scheme: function () { return scheme; }
     });
 
-    return model;
+    return modelInstance;
   };
 
   var modelList = function (scheme) {
@@ -99,16 +96,16 @@ define('model', function (require) {
 
     var list = {
       insert: function (item) {
-        var model = modelFactory(scheme);
-        model.update(item);
-        models.push(model);
-        channel.emit('insert', model, partial(list.remove, model));
-        model.on('event', partial(channel.emit, 'change', model));
-        return model;
+        var modelInstance = modelFactory(scheme);
+        modelInstance.update(item);
+        models.push(modelInstance);
+        channel.emit('insert', modelInstance, partial(list.remove, modelInstance));
+        modelInstance.on('event', partial(channel.emit, 'change', modelInstance));
+        return modelInstance;
       },
-      remove: function (model) {
-        remove(models, model);
-        channel.emit('remove', model);
+      remove: function (modelInstance) {
+        remove(models, modelInstance);
+        channel.emit('remove', modelInstance);
       },
       reset: function (newModels) {
         if (!isArray(newModels)) { return; }
@@ -116,8 +113,8 @@ define('model', function (require) {
         each(newModels, list.insert);
       },
       snapshot: function () {
-        return map(models, function (model) {
-          return model.snapshot();
+        return map(models, function (modelInstance) {
+          return modelInstance.snapshot();
         });
       }
     };
@@ -125,5 +122,10 @@ define('model', function (require) {
     return merge(list, channel);
   };
 
-  return modelFactory;
+  var model = function (scheme) {
+    if (isArray(item)) { return modelList(item[0]); }
+    return modelFactory(item);
+  };
+
+  return model;
 });
