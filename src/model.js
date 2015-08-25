@@ -123,8 +123,8 @@ define('model', function (require) {
   };
 
   var model = function (scheme) {
-    if (isArray(item)) { return modelList(item[0]); }
-    return modelFactory(item);
+    if (isArray(scheme)) { return modelList(scheme[0]); }
+    return modelFactory(scheme);
   };
 
   return model;
