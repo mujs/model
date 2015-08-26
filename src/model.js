@@ -107,8 +107,8 @@ define('model', function (require) {
         channel.emit('remove', modelInstance);
       },
       reset: function (newModels) {
-        if (!isArray(newModels)) { return; }
         each(models, list.remove);
+        if (!isArray(newModels)) { return; }
         each(newModels, list.insert);
       },
       snapshot: function () {
