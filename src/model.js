@@ -93,32 +93,37 @@ define('model', function (require) {
     var models = [],
         channel = events();
 
-    var list = {
-      insert: function (item) {
-        var modelInstance = modelFactory(scheme);
-        modelInstance.update(item);
-        models.push(modelInstance);
-        channel.emit('insert', modelInstance, partial(list.remove, modelInstance));
-        modelInstance.on('event', partial(channel.emit, 'change', modelInstance));
-        return modelInstance;
-      },
-      remove: function (modelInstance) {
-        remove(models, modelInstance);
-        channel.emit('remove', modelInstance);
-      },
-      reset: function (newModels) {
-        each(models, list.remove);
-        if (!isArray(newModels)) { return; }
-        each(newModels, list.insert);
-      },
-      snapshot: function () {
-        return map(models, function (modelInstance) {
-          return modelInstance.snapshot();
-        });
-      }
+    var insertModel = function (item) {
+      var modelInstance = modelFactory(scheme);
+      modelInstance.update(item);
+      models.push(modelInstance);
+      channel.emit('insert', modelInstance, partial(removeModel, modelInstance));
+      modelInstance.on('event', partial(channel.emit, 'change', modelInstance));
     };
 
-    return merge(list, channel);
+    var removeModel = function (modelInstance) {
+      remove(models, modelInstance);
+      channel.emit('remove', modelInstance);
+    };
+
+    var reset = function (newModels) {
+      each(models, removeModel);
+      if (!isArray(newModels)) { return; }
+      each(newModels, insertModel);
+    };
+
+    var snapshot = function () {
+      return map(models, function (modelInstance) {
+        return modelInstance.snapshot();
+      });
+    };
+
+    return merge(channel, {
+      insert: insertModel,
+      remove: removeModel,
+      reset: reset,
+      snapshot: snapshot
+    });
   };
 
   var model = function (scheme) {
