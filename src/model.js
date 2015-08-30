@@ -13,9 +13,10 @@ define('model', function (require) {
       each       = require('mu.list.each'),
       map        = require('mu.list.map'),
       remove     = require('mu.list.remove'),
+      copy       = require('mu.list.copy'),
       traverse   = require('mu.tree.each'),
       path       = require('mu.tree.path'),
-      copy       = require('mu.tree.copy'),
+      clone      = require('mu.tree.copy'),
       events     = require('mu.async.events');
 
   var seemsNumber = function (value) {
@@ -40,7 +41,7 @@ define('model', function (require) {
   };
 
   var modelFactory = function (scheme) {
-    var root = copy(scheme),
+    var root = clone(scheme),
         channel = events();
 
     var modelInstance = map(root, function (item, index) {
@@ -108,7 +109,9 @@ define('model', function (require) {
     };
 
     var reset = function (newModels) {
-      each(models, removeModel);
+      // copy is needed to prevent remove altering the array being iterated
+      each(copy(models), removeModel);
+      
       if (!isArray(newModels)) { return; }
       each(newModels, insertModel);
     };
