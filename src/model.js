@@ -67,7 +67,7 @@ define('model', function (require) {
         var node = path(modelInstance, index);
 
         if (isScalar(item) && isFunction(node)) { node(item); }
-        else if (isArray(item) && isFunction(node.reset)) {
+        else if (isArray(item) && node.isList) {
           node.reset(item);
         }
       });
@@ -83,6 +83,7 @@ define('model', function (require) {
 
     modelInstance = merge(modelInstance, channel, {
       update: update,
+      reset: partial(update, null),
       snapshot: snapshot
     });
 
@@ -119,6 +120,7 @@ define('model', function (require) {
     };
 
     return merge(channel, {
+      isList: true,
       insert: insertModel,
       remove: removeModel,
       reset: reset,
