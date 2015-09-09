@@ -1,0 +1,10 @@
+{
+  "pkgDependencies": {
+    "mujs/define": "*",
+    "mujs/is": "*",
+    "mujs/object": "*",
+    "mujs/fn": "*",
+    "mujs/list": "*",
+    "mujs/async": "*"
+  }
+}
