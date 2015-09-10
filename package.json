@@ -5,6 +5,6 @@
     "mujs/object": "*",
     "mujs/fn": "*",
     "mujs/list": "*",
-    "mujs/async": "*"
+    "mujs/events": "*"
   }
 }
